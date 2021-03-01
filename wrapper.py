@@ -12,7 +12,7 @@ def fastq(file):
 		os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
 		# convert to paired end fastq files
 		os.system('fastq-dump -I --split-files ' + i)
-
+		print('hellow world')
 # Question 2
 # build a transcriptome index for HCMV (NCBI accession EF999921)
 # use biopython to retrieve and generate the appropriate input and then build the index with kallisto
