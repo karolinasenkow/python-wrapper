@@ -9,6 +9,7 @@ EF999921_fasta = open('EF999921_fasta.fasta', 'w')
 EF999921_CDS = open('EF999921_CDS.fasta','w')
 longest_contig = dict()
 blast_input = open('blast_input.fna', 'w')
+blast_db = open('db.fasta', 'w')
 
 # set current path
 path = os.getcwd()
@@ -74,6 +75,8 @@ def bowtie2_map(file):
 	for i in file:
 		os.system('bowtie2 --quiet -x EF999921 -1 ' + i + '_1.fastq -2 ' + i + '_2.fastq -S ' + i + '_EF999921_map.sam')
 
+def file_version(): # convert sam to fastq
+        pass
 
 def spades(file):
 	file = open(file).read().splitlines()
@@ -86,8 +89,6 @@ def spades(file):
 	output.write(command)
 	output.write('\n')
 
-def file_version(): # convert sam to fastq
-	pass
 
 def contig_calc():
 	os.chdir(path + '/spades_assembly') # navigate to spades_assembly folder
@@ -104,11 +105,29 @@ def contig_calc():
 	output.write('There are ' + str(seq_len) + ' bp in the assembly.')
 	output.write('\n')
 
-def blast():
+def blast_inputs():
+	# create fna file of longest contig (query)
 	key_max = max(longest_contig, key=int) # retrieve seq of longest contig
 	blast_input.write('>' + longest_contig[key_max][0])
 	blast_input.write('\n')
 	blast_input.write(str(longest_contig[key_max][1]) + '\n')
+
+	# create db file
+	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]')
+	record = Entrez.read(handle)
+	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]', retmax =record['Count'])
+	record = Entrez.read(handle)
+	for i in record['IdList']:
+		handle = Entrez.efetch(db='nucleotide', id=i, rettype='fasta')
+		record = SeqIO.read(handle, 'fasta')
+		blast_db.write('>' + str(record.description))
+		blast_db.write('\n')
+		blast_db.write(str(record.seq))
+		blast_db.write('\n')
+
+def blast():
+	# create db in blast+
+	os.system('makeblastdb -in blast_db.fasta -out betaherpesvirinae -title betaherpresvirinae -dbtype nucl')
 
 if __name__ == '__main__':
 	#fastq('input.txt')
@@ -119,4 +138,5 @@ if __name__ == '__main__':
 	#bowtie2_map('input.txt')
 	#spades('input.txt')
 	contig_calc()
+	blast_inputs()
 	blast()
