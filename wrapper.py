@@ -9,7 +9,7 @@ EF999921_fasta = open('EF999921_fasta.fasta', 'w')
 EF999921_CDS = open('EF999921_CDS.fasta','w')
 longest_contig = dict()
 blast_input = open('blast_input.fna', 'w')
-blast_db = open('db.fasta', 'w')
+blast_db = open('blast_db.fasta', 'w')
 
 # set current path
 path = os.getcwd()
@@ -113,6 +113,7 @@ def blast_inputs():
 	blast_input.write(str(longest_contig[key_max][1]) + '\n')
 
 	# create db file
+	Entrez.email = 'ksenkow@luc.edu'
 	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]')
 	record = Entrez.read(handle)
 	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]', retmax =record['Count'])
@@ -127,7 +128,7 @@ def blast_inputs():
 
 def blast():
 	# create db in blast+
-	os.system('makeblastdb -in blast_db.fasta -out betaherpesvirinae -title betaherpresvirinae -dbtype nucl')
+	os.system('makeblastdb -in ' + path + '/blast_db.fasta -out betaherpesvirinae -title betaherpresvirinae -dbtype nucl')
 
 if __name__ == '__main__':
 	#fastq('input.txt')
