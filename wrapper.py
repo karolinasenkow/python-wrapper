@@ -85,9 +85,21 @@ def spades(file):
 	output.write('\n')
 
 def contig_calc():
-	os.system('cd spades_assembly/')
-	record = SeqIO.read('contig.fasta','fasta')
-	print(record)
+	os.chdir(path + '/spades_assembly') # navigate to spades_assembly folder
+	record = SeqIO.parse('contigs.fasta','fasta')
+	count = 0
+	seq_len = 0
+	for i in record:
+		if len(i.seq) > 1000:
+			count += 1
+			seq_len += len(i.seq)
+	output.write('There are ' + str(count) + ' contigs > 1000 bp in the assembly.')
+	output.write('\n')
+	output.write('There are ' + str(seq_len) + ' bp in the assembly.')
+	output.write('\n')
+
+def blast():
+	pass
 
 if __name__ == '__main__':
 	#fastq('input.txt')
@@ -96,5 +108,5 @@ if __name__ == '__main__':
 	#sleuth()
 	#bowtie2_index()
 	#bowtie2_map('input.txt')
-	spades('input.txt')
+	#spades('input.txt')
 	contig_calc()
