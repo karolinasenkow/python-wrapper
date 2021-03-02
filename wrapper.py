@@ -1,4 +1,5 @@
 import os
+import csv
 from Bio import Entrez
 from Bio import SeqIO
 file = open('input.txt').readlines()
@@ -8,7 +9,7 @@ output = open('miniProject.log','w')
 EF999921_fasta = open('EF999921_fasta.fasta', 'w')
 EF999921_CDS = open('EF999921_CDS.fasta','w')
 longest_contig = dict()
-blast_input = open('blast_input.fna', 'w')
+blast_input = open('blast_input.fasta', 'w')
 blast_db = open('blast_db.fasta', 'w')
 
 # set current path
@@ -111,6 +112,7 @@ def blast_inputs():
 	blast_input.write('>' + longest_contig[key_max][0])
 	blast_input.write('\n')
 	blast_input.write(str(longest_contig[key_max][1]) + '\n')
+	blast_input.close()
 
 	# create db file
 	Entrez.email = 'ksenkow@luc.edu'
@@ -125,10 +127,18 @@ def blast_inputs():
 		blast_db.write('\n')
 		blast_db.write(str(record.seq))
 		blast_db.write('\n')
+	blast_db.close()
 
 def blast():
 	# create db in blast+
-	os.system('makeblastdb -in ' + path + '/blast_db.fasta -out betaherpesvirinae -title betaherpresvirinae -dbtype nucl')
+	os.system('makeblastdb -in ' + path + '/blast_db.fasta -out ' + path + '/betaherpesvirinae -title betaherpesvirinae -dbtype nucl')
+	os.system('blastn -query ' + path + '/blast_input.fasta -db betaherpesvirinae -max_target_seqs 10 -out ' + path + '/blast_results.txt -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle"')
+	output.write('sacc' + '\t' + 'pident' + '\t' + 'length' + '\t' + 'qstart' + '\t' + 'qend' + '\t' + 'sstart' + '\t' + 'send' + '\t' + 'bitscore' + '\t' + 'eval' + '\t' + 'stitle')
+	output.write('\n')
+	read_blast_results = open('blast_results.txt').read().splitlines()
+	for i in read_blast_results:
+		output.write(str(i))
+		output.write('\n')
 
 if __name__ == '__main__':
 	#fastq('input.txt')
@@ -141,3 +151,4 @@ if __name__ == '__main__':
 	contig_calc()
 	blast_inputs()
 	blast()
+
