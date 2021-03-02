@@ -7,6 +7,8 @@ file = open('input.txt').readlines()
 output = open('miniProject.log','w')
 EF999921_fasta = open('EF999921_fasta.fasta', 'w')
 EF999921_CDS = open('EF999921_CDS.fasta','w')
+longest_contig = dict()
+blast_input = open('blast_input.fna', 'w')
 
 # set current path
 path = os.getcwd()
@@ -84,6 +86,9 @@ def spades(file):
 	output.write(command)
 	output.write('\n')
 
+def file_version(): # convert sam to fastq
+	pass
+
 def contig_calc():
 	os.chdir(path + '/spades_assembly') # navigate to spades_assembly folder
 	record = SeqIO.parse('contigs.fasta','fasta')
@@ -93,13 +98,17 @@ def contig_calc():
 		if len(i.seq) > 1000:
 			count += 1
 			seq_len += len(i.seq)
+			longest_contig[len(i.seq)] = (i.description, i.seq)
 	output.write('There are ' + str(count) + ' contigs > 1000 bp in the assembly.')
 	output.write('\n')
 	output.write('There are ' + str(seq_len) + ' bp in the assembly.')
 	output.write('\n')
 
 def blast():
-	pass
+	key_max = max(longest_contig, key=int) # retrieve seq of longest contig
+	blast_input.write('>' + longest_contig[key_max][0])
+	blast_input.write('\n')
+	blast_input.write(str(longest_contig[key_max][1]) + '\n')
 
 if __name__ == '__main__':
 	#fastq('input.txt')
@@ -110,3 +119,4 @@ if __name__ == '__main__':
 	#bowtie2_map('input.txt')
 	#spades('input.txt')
 	contig_calc()
+	blast()
