@@ -112,11 +112,11 @@ def transcriptome_reads(file):
 
 def spades(file):
 	file = open(file).read().splitlines()
-	first = 'bowtie2_' + file[0]
-	second = 'bowtie2_' + file[1]
-	third = 'bowtie2_' + file[2]
-	fourth = 'bowtie2_' + file[3]
-	command = 'spades -k 55,77,99,127 -t 2 --only-assembler --pe1-1 ' + path + '/' + first + '_1.fastq --pe1-2 ' + path + '/' + first + '_2.fastq --pe2-1 ' + path + '/' + second + '_1.fastq --pe2-2 ' +  path + '/' + second + '_2.fastq --pe3-1 ' + path + '/' + third + '_1.fastq --pe3-2 ' + path + '/' + third + '_2.fastq --pe4-1 ' + path + '/' + fourth + '_1.fastq --pe4-2 ' + path + '/' + fourth + '_2.fastq -o ' + path + '/spades_assembly/'
+	first = 'bt2_' + file[0]
+	second = 'bt2_' + file[1]
+	third = 'bt2_' + file[2]
+	fourth = 'bt2_' + file[3]
+	command = 'spades -k 55,77,99,127 -t 2 --only-assembler --pe1-1 ' + path + '/' + first + '.1.fastq --pe1-2 ' + path + '/' + first + '.2.fastq --pe2-1 ' + path + '/' + second + '.1.fastq --pe2-2 ' +  path + '/' + second + '.2.fastq --pe3-1 ' + path + '/' + third + '.1.fastq --pe3-2 ' + path + '/' + third + '.2.fastq --pe4-1 ' + path + '/' + fourth + '.1.fastq --pe4-2 ' + path + '/' + fourth + '.2.fastq -o ' + path + '/spades_assembly/'
 	os.system(command)
 	output.write(command)
 	output.write('\n')
