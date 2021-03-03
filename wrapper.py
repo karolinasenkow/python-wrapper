@@ -109,7 +109,6 @@ def transcriptome_reads(file):
                                 count +=2
 		after.append(count)
 		count = 0
-	print(after)
 
 	output.write('Donor 1 (2dpi) had ' + str(before[0]) + ' read pairs before Bowtie2 filtering and ' + str(after[0]) + ' read pairs after. \n')
 	output.write('Donor 1 (6dpi) had ' + str(before[1]) + ' read pairs before Bowtie2 filtering and ' + str(after[1]) + ' read pairs after. \n')
