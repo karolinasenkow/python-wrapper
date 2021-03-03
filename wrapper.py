@@ -76,7 +76,7 @@ def bowtie2_map(file):
 	for i in file:
 		os.system('bowtie2 --quiet -x EF999921 -1 ' + i + '_1.fastq -2 ' + i + '_2.fastq -S ' + i + '_EF999921_map.sam --al-conc ' + path + 'bt2_' + i + '.fastq')
 
-def transcriptome_reads(file): # convert sam to fastq
+def transcriptome_reads(file):
 	file = open(file).read().splitlines()
 	before = []
 	after = []
@@ -87,17 +87,24 @@ def transcriptome_reads(file): # convert sam to fastq
 		for x in f:
 			if x.startswith('@'):
 				count +=1
-		if i == 0:
-			before.append('Donor 1 (2dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
-			count = 0
-		elif i == 1:
-			before.append('Donor 1 (6dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
-			count = 0
-		elif i == 2:
-			before.append('Donor 3 (2dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
-		else:
-			before.append('Donor 1 (6dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
-	print(before)
+		before.append(count*2)
+		count = 0
+
+	count = 0
+	for i in file:
+		donor = path + '/bowtie2_' + i + '_1.fastq'
+		f = open(donor).readlines()
+		for x in f:
+                        if x.startswith('@'):
+                                count +=1
+		after.append(count*2)
+		count = 0
+	print(after)
+
+	output.write('Donor 1 (2dpi) had ' + str(before[0]) + ' read pairs before Bowtie2 filtering and ' + str(after[0]) + ' read pairs after. \n')
+	output.write('Donor 1 (6dpi) had ' + str(before[1]) + ' read pairs before Bowtie2 filtering and ' + str(after[1]) + ' read pairs after. \n')
+	output.write('Donor 3 (2dpi) had ' + str(before[2]) + ' read pairs before Bowtie2 filtering and ' + str(after[2]) + ' read pairs after. \n')
+	output.write('Donor 3 (6dpi) had ' + str(before[3]) + ' read pairs before Bowtie2 filtering and ' + str(after[3]) + ' read pairs after. \n')
 
 def spades(file):
 	file = open(file).read().splitlines()
@@ -134,7 +141,7 @@ def blast_inputs():
 	blast_input.write(str(longest_contig[key_max][1]) + '\n')
 	blast_input.close()
 
-	# create db file
+	# create db file - pull from NCBI
 	Entrez.email = 'ksenkow@luc.edu'
 	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]')
 	record = Entrez.read(handle)
