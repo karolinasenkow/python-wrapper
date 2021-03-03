@@ -18,13 +18,19 @@ path = os.getcwd()
 # Question 1
 # retrieve HCMV transcriptomes 2- and 6-days post-infection (dpi)
 
-def fastq(file):
+def fastq_download(file):
 	file = open(file).readlines()
 	for i in file:
-		# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
-		os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
-		# convert to paired end fastq files
 		os.system('fastq-dump -I --split-files ' + i)
+		# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
+		#os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
+
+
+# convert to paired end fastq files
+#def split_files(file):
+#	file = open(file).readlines
+#	for i in file:
+#		os.system('fastq-dump -I --split-files ' + i)
 
 # Question 2
 # build a transcriptome index for HCMV (NCBI accession EF999921)
@@ -172,14 +178,15 @@ def blast():
 		output.write('\n')
 
 if __name__ == '__main__':
-	#fastq('input.txt')
-	#CDS_record()
-	#kallisto('input.txt')
-	#sleuth()
-	#bowtie2_index()
-	#bowtie2_map('input.txt')
+	fastq_download('input.txt') # skip if using test data
+	#split_files('input.txt')
+	CDS_record()
+	kallisto('input.txt')
+	sleuth()
+	bowtie2_index()
+	bowtie2_map('input.txt')
 	transcriptome_reads('input.txt')
-	#spades('input.txt')
-	#contig_calc()
-	#blast_inputs()
-	#blast()
+	spades('input.txt')
+	contig_calc()
+	blast_inputs()
+	blast()
