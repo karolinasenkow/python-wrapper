@@ -74,17 +74,37 @@ def bowtie2_map(file):
 	os.system('bowtie2-build EF999921_fasta.fasta EF999921')
 	file = open(file).read().splitlines()
 	for i in file:
-		os.system('bowtie2 --quiet -x EF999921 -1 ' + i + '_1.fastq -2 ' + i + '_2.fastq -S ' + i + '_EF999921_map.sam')
+		os.system('bowtie2 --quiet -x EF999921 -1 ' + i + '_1.fastq -2 ' + i + '_2.fastq -S ' + i + '_EF999921_map.sam --al-conc ' + path + 'bt2_' + i + '.fastq')
 
-def file_version(): # convert sam to fastq
-        pass
+def transcriptome_reads(file): # convert sam to fastq
+	file = open(file).read().splitlines()
+	before = []
+	after = []
+	count = 0
+	for i in file:
+		donor = path + '/' + i + '_1.fastq'
+		f = open(donor).readlines()
+		for x in f:
+			if x.startswith('@'):
+				count +=1
+		if i == 0:
+			before.append('Donor 1 (2dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
+			count = 0
+		elif i == 1:
+			before.append('Donor 1 (6dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
+			count = 0
+		elif i == 2:
+			before.append('Donor 3 (2dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
+		else:
+			before.append('Donor 1 (6dpi) had ' + str(count) + ' bp before Bowtie2 filtering and ')
+	print(before)
 
 def spades(file):
 	file = open(file).read().splitlines()
-	first = file[0]
-	second = file[1]
-	third = file[2]
-	fourth = file[3]
+	first = 'bowtie2_' + file[0]
+	second = 'bowtie2_' + file[1]
+	third = 'bowtie2_' + file[2]
+	fourth = 'bowtie2_' + file[3]
 	command = 'spades -k 55,77,99,127 -t 2 --only-assembler --pe1-1 ' + path + '/' + first + '_1.fastq --pe1-2 ' + path + '/' + first + '_2.fastq --pe2-1 ' + path + '/' + second + '_1.fastq --pe2-2 ' +  path + '/' + second + '_2.fastq --pe3-1 ' + path + '/' + third + '_1.fastq --pe3-2 ' + path + '/' + third + '_2.fastq --pe4-1 ' + path + '/' + fourth + '_1.fastq --pe4-2 ' + path + '/' + fourth + '_2.fastq -o ' + path + '/spades_assembly/'
 	os.system(command)
 	output.write(command)
@@ -147,8 +167,8 @@ if __name__ == '__main__':
 	#sleuth()
 	#bowtie2_index()
 	#bowtie2_map('input.txt')
+	transcriptome_reads('input.txt')
 	#spades('input.txt')
-	contig_calc()
-	blast_inputs()
-	blast()
-
+	#contig_calc()
+	#blast_inputs()
+	#blast()
