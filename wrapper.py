@@ -86,17 +86,18 @@ def transcriptome_reads(file):
 		f = open(donor).readlines()
 		for x in f:
 			if x.startswith('@'):
-				count +=1
-		before.append(count*2)
+				count +=2 # 1 for _1.fastq and 1 for _2.fastq
+		before.append(count)
 		count = 0
 
 	count = 0
 	for i in file:
+		print(i)
 		donor = path + '/bowtie2_' + i + '_1.fastq'
 		f = open(donor).readlines()
 		for x in f:
                         if x.startswith('@'):
-                                count +=1
+                                count +=2
 		after.append(count*2)
 		count = 0
 	print(after)
@@ -169,11 +170,11 @@ def blast():
 
 if __name__ == '__main__':
 	#fastq('input.txt')
-	#CDS_record()
-	#kallisto('input.txt')
-	#sleuth()
-	#bowtie2_index()
-	#bowtie2_map('input.txt')
+	CDS_record()
+	kallisto('input.txt')
+	sleuth()
+	bowtie2_index()
+	bowtie2_map('input.txt')
 	transcriptome_reads('input.txt')
 	#spades('input.txt')
 	#contig_calc()
