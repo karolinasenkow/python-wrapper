@@ -66,15 +66,18 @@ def sleuth():
 # Write to your log file the number of reads in each transcriptome before and after the Bowtie2 mapping
 
 def bowtie2_index():
-        handle = Entrez.efetch(db='nucleotide', id='EF999921', rettype='fasta')
-        record = SeqIO.read(handle, 'fasta')
-        EF999921_fasta.write('>' + str(record.description)) + EF999921_fasta.write('\n' + str(record.seq))
+        handle = Entrez.efetch(db='nucleotide', id='EF999921', rettype='fasta', retmode='text')
+        record = list(SeqIO.parse(handle, 'fasta'))
+        for i in record:
+                SeqIO.write(i, 'EF999921_fasta.fasta', "fasta")
+        #record = SeqIO.read(handle, 'fasta')
+        #EF999921_fasta.write('>' + str(record.description)) + EF999921_fasta.write('\n' + str(record.seq)
 
 def bowtie2_map(file):
 	os.system('bowtie2-build EF999921_fasta.fasta EF999921')
 	file = open(file).read().splitlines()
 	for i in file:
-		os.system('bowtie2 --quiet -x EF999921 -1 ' + i + '_1.fastq -2 ' + i + '_2.fastq -S ' + i + '_EF999921_map.sam --al-conc ' + path + 'bt2_' + i + '.fastq')
+		os.system('bowtie2 --quiet -x EF999921 -1 ' + path + '/' + i + '_1.fastq -2 ' + path + '/' + i + '_2.fastq -S ' + path + '/' + i + '_EF999921_map.sam --al-conc ' + path + '/bt2_' + i + '.fastq')
 
 def transcriptome_reads(file):
 	file = open(file).read().splitlines()
@@ -93,12 +96,12 @@ def transcriptome_reads(file):
 	count = 0
 	for i in file:
 		print(i)
-		donor = path + '/bowtie2_' + i + '_1.fastq'
+		donor = path + '/bt2_' + i + '.1.fastq'
 		f = open(donor).readlines()
 		for x in f:
                         if x.startswith('@'):
                                 count +=2
-		after.append(count*2)
+		after.append(count)
 		count = 0
 	print(after)
 
@@ -170,11 +173,11 @@ def blast():
 
 if __name__ == '__main__':
 	#fastq('input.txt')
-	CDS_record()
-	kallisto('input.txt')
-	sleuth()
-	bowtie2_index()
-	bowtie2_map('input.txt')
+	#CDS_record()
+	#kallisto('input.txt')
+	#sleuth()
+	#bowtie2_index()
+	#bowtie2_map('input.txt')
 	transcriptome_reads('input.txt')
 	#spades('input.txt')
 	#contig_calc()
