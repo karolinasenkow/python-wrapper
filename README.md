@@ -9,6 +9,7 @@
 * Bowtie2 [Bowtie2] (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 * SPAdes [SPAdes] (https://cab.spbu.ru/software/spades/)
 * blast+ [blast+] (https://www.ncbi.nlm.nih.gov/books/NBK279690/)
+*os
 
 ## Installation
 To run wrapper.py, clone this repository:
