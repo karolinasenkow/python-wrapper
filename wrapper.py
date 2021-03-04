@@ -1,9 +1,9 @@
-import argparse
 import os
 import csv
+import argparse
 from Bio import Entrez
 from Bio import SeqIO
-
+file = open('input.txt').readlines()
 
 # create outfile
 output = open('miniProject.log','w')
@@ -16,23 +16,21 @@ blast_db = open('blast_db.fasta', 'w')
 # set current path
 path = os.getcwd()
 
+# Question 1
 # retrieve HCMV transcriptomes 2- and 6-days post-infection (dpi)
-# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
+
 def fastq_download(file):
 	file = open(file).readlines()
 	for i in file:
+		# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
 		os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
 
 # convert to paired end fastq files
-def file_split(file):
-	file = open(file).readlines()
+def split_files(file):
+	file = open(file).readlines
 	for i in file:
 		os.system('fastq-dump -I --split-files ' + i)
 
-
-# build a transcriptome index for HCMV (NCBI accession EF999921)
-# use biopython to retrieve and generate the appropriate input and then build the index with kallisto
-# you will need to extract the CDS features from the GenBank format
 def CDS_record():
 	Entrez.email = 'ksenkow@luc.edu'
 	count = 0
@@ -106,6 +104,7 @@ def transcriptome_reads(file):
                                 count +=2
 		after.append(count)
 		count = 0
+	print(after)
 
 	output.write('Donor 1 (2dpi) had ' + str(before[0]) + ' read pairs before Bowtie2 filtering and ' + str(after[0]) + ' read pairs after. \n')
 	output.write('Donor 1 (6dpi) had ' + str(before[1]) + ' read pairs before Bowtie2 filtering and ' + str(after[1]) + ' read pairs after. \n')
@@ -173,16 +172,20 @@ def blast():
 		output.write(str(i))
 		output.write('\n')
 
+parser = argparse.ArgumentParser(description='Run pipeline.')
+parser.add_argument('--download', type=str, required=False,help='download data from NCBI')
+parser.add_argument('--test_data', type=str, required=False,help='use test data')
+args = parser.parse_args()
+
 if __name__ == '__main__':
-	#fastq_download('input.txt') # skip if using test data
-	file_split('input.txt')
-	CDS_record()
-	#kallisto('input.txt')
-	#sleuth()
-	#bowtie2_index()
-	#bowtie2_map('input.txt')
-	#transcriptome_reads('input.txt')
-	#spades('input.txt')
-	#contig_calc()
-	#blast_inputs()
-	#blast()
+	if args.download:
+		fastq_download('input.txt')
+		split_files('input.txt')
+
+	elif args.test_data:
+		#split_files('input.txt')
+		#CDS_record()
+		#kallisto('input.txt')
+		sleuth()
+		#bowtie2_index()
+		#bowtie2_map('input.txt')
