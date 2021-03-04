@@ -2,6 +2,7 @@ import os
 import csv
 from Bio import Entrez
 from Bio import SeqIO
+
 file = open('input.txt').readlines()
 
 # create outfile
@@ -15,65 +16,66 @@ blast_db = open('blast_db.fasta', 'w')
 # set current path
 path = os.getcwd()
 
-# Question 1
-# retrieve HCMV transcriptomes 2- and 6-days post-infection (dpi)
-
 def fastq(file):
-	file = open(file).readlines()
+	file = open(file).readlines() # read in SRR ID from input file
 	for i in file:
 		# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
 		os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
-		# convert to paired end fastq files
+
+# convert to paired end fastq files
+def split_lines(file):
+	file = open(file).read().splitlines()
+	for i in file:
 		os.system('fastq-dump -I --split-files ' + i)
 
-# Question 2
-# build a transcriptome index for HCMV (NCBI accession EF999921)
-# use biopython to retrieve and generate the appropriate input and then build the index with kallisto
-# you will need to extract the CDS features from the GenBank format
+
+''' build a transcriptome index for HCMV (NCBI accession EF999921)
+    use biopython to retrieve and generate the appropriate input and then build the index with kallisto '''
+
 def CDS_record():
 	Entrez.email = 'ksenkow@luc.edu'
 	count = 0
 	# write out CDS of EF999921
 	handle = Entrez.efetch(db='nucleotide', id='EF999921',rettype='gb', retmode='text')
-	record = SeqIO.read(handle, 'genbank')
+	record = SeqIO.read(handle, 'genbank') # pull genbank record for EF999921
 	for i in record.features:
-		if i.type == 'CDS':
-			count += 1
+		if i.type == 'CDS': # parse through genbank file, if CDS:
+			count += 1 # increase count
 			coordinates = i.location
-			EF999921_CDS.write('>' + ' '.join(map(str, i.qualifiers['protein_id'])))
+			EF999921_CDS.write('>' + ' '.join(map(str, i.qualifiers['protein_id']))) # write out CDS fasta file
 			EF999921_CDS.write('\n')
 			EF999921_CDS.write(str(coordinates.extract(record.seq)))
 			EF999921_CDS.write('\n')
-	output.write('The HCMV genome (EF999921) has ' + str(count) + ' CDS.')
+	output.write('The HCMV genome (EF999921) has ' + str(count) + ' CDS.') # output # of CDS to log file
 	output.write('\n')
 
-def kallisto(file):
+def kallisto(file): # run kallisto
 	os.system('time kallisto index -i index.idx EF999921_CDS.fasta')
 	file = open(file).read().splitlines()
 	for i in file:
 		os.system('time kallisto quant -i index.idx -o ' + path + '/results_' + i + ' -b 30 -t 2 ' + path + '/' + i + '_1.fastq ' + path + '/' + i + '_2.fastq')
 
 def sleuth():
-	os.system('python3 create_table.py')
-	os.system('Rscript sleuth.R')
+	os.system('python3 create_table.py') # create sample table
+	os.system('Rscript sleuth.R') # call sleuth script
 	sleuth_results = open('sleuth_results.txt').readlines()
 	for i in sleuth_results: # write out results of sleuth.R to miniProject.log
 		output.write(i)
 	output.write('\n')
 
-# Using Bowtie2, create an index for HCMV (NCBI accession EF999921)
-# Next, save the reads that map to the HCMV index for use in assembly.
-# Write to your log file the number of reads in each transcriptome before and after the Bowtie2 mapping
+''' Using Bowtie2, create an index for HCMV (NCBI accession EF999921)
+    Next, save the reads that map to the HCMV index for use in assembly.
+    Write to your log file the number of reads in each transcriptome before and after the Bowtie2 mapping '''
 
 def bowtie2_index():
         handle = Entrez.efetch(db='nucleotide', id='EF999921', rettype='fasta', retmode='text')
-        record = list(SeqIO.parse(handle, 'fasta'))
+        record = list(SeqIO.parse(handle, 'fasta')) # write out fasta file for EF999921
         for i in record:
                 SeqIO.write(i, 'EF999921_fasta.fasta', "fasta")
         #record = SeqIO.read(handle, 'fasta')
         #EF999921_fasta.write('>' + str(record.description)) + EF999921_fasta.write('\n' + str(record.seq)
 
-def bowtie2_map(file):
+def bowtie2_map(file): # build bowtie2 index and run bowtie2
 	os.system('bowtie2-build EF999921_fasta.fasta EF999921')
 	file = open(file).read().splitlines()
 	for i in file:
@@ -88,9 +90,9 @@ def transcriptome_reads(file):
 		donor = path + '/' + i + '_1.fastq'
 		f = open(donor).readlines()
 		for x in f:
-			if x.startswith('@'):
+			if x.startswith('@'): # identify new read
 				count +=2 # 1 for _1.fastq and 1 for _2.fastq
-		before.append(count)
+		before.append(count) # append to list before
 		count = 0
 
 	count = 0
@@ -99,11 +101,10 @@ def transcriptome_reads(file):
 		donor = path + '/bt2_' + i + '.1.fastq'
 		f = open(donor).readlines()
 		for x in f:
-                        if x.startswith('@'):
-                                count +=2
-		after.append(count)
+                        if x.startswith('@'): # identify new count
+                                count +=2 # 1 for _1.fastq and 1 for _2.fastq
+		after.append(count) # append to after
 		count = 0
-	print(after)
 
 	output.write('Donor 1 (2dpi) had ' + str(before[0]) + ' read pairs before Bowtie2 filtering and ' + str(after[0]) + ' read pairs after. \n')
 	output.write('Donor 1 (6dpi) had ' + str(before[1]) + ' read pairs before Bowtie2 filtering and ' + str(after[1]) + ' read pairs after. \n')
@@ -112,13 +113,13 @@ def transcriptome_reads(file):
 
 def spades(file):
 	file = open(file).read().splitlines()
-	first = 'bt2_' + file[0]
+	first = 'bt2_' + file[0] # name output files
 	second = 'bt2_' + file[1]
 	third = 'bt2_' + file[2]
 	fourth = 'bt2_' + file[3]
 	command = 'spades -k 55,77,99,127 -t 2 --only-assembler --pe1-1 ' + path + '/' + first + '.1.fastq --pe1-2 ' + path + '/' + first + '.2.fastq --pe2-1 ' + path + '/' + second + '.1.fastq --pe2-2 ' +  path + '/' + second + '.2.fastq --pe3-1 ' + path + '/' + third + '.1.fastq --pe3-2 ' + path + '/' + third + '.2.fastq --pe4-1 ' + path + '/' + fourth + '.1.fastq --pe4-2 ' + path + '/' + fourth + '.2.fastq -o ' + path + '/spades_assembly/'
-	os.system(command)
-	output.write(command)
+	os.system(command) # run spades command
+	output.write(command) # write spades command to output file
 	output.write('\n')
 
 
@@ -128,10 +129,10 @@ def contig_calc():
 	count = 0
 	seq_len = 0
 	for i in record:
-		if len(i.seq) > 1000:
+		if len(i.seq) > 1000: # if len > 1000 increase count
 			count += 1
 			seq_len += len(i.seq)
-			longest_contig[len(i.seq)] = (i.description, i.seq)
+			longest_contig[len(i.seq)] = (i.description, i.seq) # key = seq len, values = (description, sequence)
 	output.write('There are ' + str(count) + ' contigs > 1000 bp in the assembly.')
 	output.write('\n')
 	output.write('There are ' + str(seq_len) + ' bp in the assembly.')
@@ -140,20 +141,20 @@ def contig_calc():
 def blast_inputs():
 	# create fna file of longest contig (query)
 	key_max = max(longest_contig, key=int) # retrieve seq of longest contig
-	blast_input.write('>' + longest_contig[key_max][0])
+	blast_input.write('>' + longest_contig[key_max][0]) # >description of longest contig
 	blast_input.write('\n')
-	blast_input.write(str(longest_contig[key_max][1]) + '\n')
+	blast_input.write(str(longest_contig[key_max][1]) + '\n') # sequence of longest contig
 	blast_input.close()
 
 	# create db file - pull from NCBI
 	Entrez.email = 'ksenkow@luc.edu'
 	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]')
 	record = Entrez.read(handle)
-	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]', retmax =record['Count'])
-	record = Entrez.read(handle)
+	handle = Entrez.esearch(db='nucleotide', term='Betaherpesvirinae [Organism] AND refseq[filter]', retmax =record['Count']) # retmax allows you to display all records
+	record = Entrez.read(handle) # pull NCBI record for organism
 	for i in record['IdList']:
 		handle = Entrez.efetch(db='nucleotide', id=i, rettype='fasta')
-		record = SeqIO.read(handle, 'fasta')
+		record = SeqIO.read(handle, 'fasta') # write out to fasta format
 		blast_db.write('>' + str(record.description))
 		blast_db.write('\n')
 		blast_db.write(str(record.seq))
@@ -165,21 +166,22 @@ def blast():
 	os.system('makeblastdb -in ' + path + '/blast_db.fasta -out ' + path + '/betaherpesvirinae -title betaherpesvirinae -dbtype nucl')
 	os.system('blastn -query ' + path + '/blast_input.fasta -db betaherpesvirinae -max_target_seqs 10 -out ' + path + '/blast_results.txt -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle"')
 	output.write('sacc' + '\t' + 'pident' + '\t' + 'length' + '\t' + 'qstart' + '\t' + 'qend' + '\t' + 'sstart' + '\t' + 'send' + '\t' + 'bitscore' + '\t' + 'eval' + '\t' + 'stitle')
-	output.write('\n')
+	output.write('\n') # output headers in log file
 	read_blast_results = open('blast_results.txt').read().splitlines()
-	for i in read_blast_results:
+	for i in read_blast_results: # read in blast results and output to log file
 		output.write(str(i))
 		output.write('\n')
 
-if __name__ == '__main__':
-	#fastq('input.txt')
-	#CDS_record()
-	#kallisto('input.txt')
-	#sleuth()
-	#bowtie2_index()
-	#bowtie2_map('input.txt')
+if __name__ == '__main__': # call all methods
+	fastq('input.txt')
+	split_lines('input.txt')
+	CDS_record()
+	kallisto('input.txt')
+	sleuth()
+	bowtie2_index()
+	bowtie2_map('input.txt')
 	transcriptome_reads('input.txt')
-	#spades('input.txt')
-	#contig_calc()
-	#blast_inputs()
-	#blast()
+	spades('input.txt')
+	contig_calc()
+	blast_inputs()
+	blast()
