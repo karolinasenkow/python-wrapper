@@ -1,8 +1,9 @@
+import argparse
 import os
 import csv
 from Bio import Entrez
 from Bio import SeqIO
-file = open('input.txt').readlines()
+
 
 # create outfile
 output = open('miniProject.log','w')
@@ -15,24 +16,20 @@ blast_db = open('blast_db.fasta', 'w')
 # set current path
 path = os.getcwd()
 
-# Question 1
 # retrieve HCMV transcriptomes 2- and 6-days post-infection (dpi)
-
+# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
 def fastq_download(file):
 	file = open(file).readlines()
 	for i in file:
-		os.system('fastq-dump -I --split-files ' + i)
-		# retrieve  2dpi (Donors 1, 3) & 6dpi (Donors 1, 3)
-		#os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
-
+		os.system('wget https://sra-downloadb.be-md.ncbi.nlm.nih.gov/sos2/sra-pub-run-11/' + i[:-3] + '/' + i)
 
 # convert to paired end fastq files
-#def split_files(file):
-#	file = open(file).readlines
-#	for i in file:
-#		os.system('fastq-dump -I --split-files ' + i)
+def file_split(file):
+	file = open(file).readlines()
+	for i in file:
+		os.system('fastq-dump -I --split-files ' + i)
 
-# Question 2
+
 # build a transcriptome index for HCMV (NCBI accession EF999921)
 # use biopython to retrieve and generate the appropriate input and then build the index with kallisto
 # you will need to extract the CDS features from the GenBank format
@@ -177,15 +174,15 @@ def blast():
 		output.write('\n')
 
 if __name__ == '__main__':
-	fastq_download('input.txt') # skip if using test data
-	#split_files('input.txt')
+	#fastq_download('input.txt') # skip if using test data
+	file_split('input.txt')
 	CDS_record()
-	kallisto('input.txt')
-	sleuth()
-	bowtie2_index()
-	bowtie2_map('input.txt')
-	transcriptome_reads('input.txt')
-	spades('input.txt')
-	contig_calc()
-	blast_inputs()
-	blast()
+	#kallisto('input.txt')
+	#sleuth()
+	#bowtie2_index()
+	#bowtie2_map('input.txt')
+	#transcriptome_reads('input.txt')
+	#spades('input.txt')
+	#contig_calc()
+	#blast_inputs()
+	#blast()
