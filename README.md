@@ -15,7 +15,7 @@ To run wrapper.py, clone this repository:
 	https://github.com/karolinasenkow/python-wrapper.git
 
 Navigate to folder containing repo: 
-	cd python-wrapper
+    cd python-wrapper    
 
 If running on test data:
 	python3 wrapper.py -d 1
