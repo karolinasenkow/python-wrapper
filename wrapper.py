@@ -39,28 +39,27 @@ def split_lines(file):
 ''' build a transcriptome index for HCMV (NCBI accession EF999921)
  use biopython to retrieve and generate the appropriate input and then build the index with kallisto'''
 def CDS_record():
-	Entrez.email = 'ksenkow@luc.edu'
 	count = 0
-	# write out CDS of EF999921
+	Entrez.email = 'ksenkow@luc.edu' # write out CDS of EF999921
 	handle = Entrez.efetch(db='nucleotide', id='EF999921',rettype='gb', retmode='text')
 	record = SeqIO.read(handle, 'genbank') # retrieve genbank record for EF999921
 	for i in record.features:
 		if i.type == 'CDS': # find CDS in record
 			count += 1 # count each CDS and write to fasta file
-			coordinates = i.location 
+			coordinates = i.location
 			EF999921_CDS.write('>' + ' '.join(map(str, i.qualifiers['protein_id'])))
 			EF999921_CDS.write('\n')
 			EF999921_CDS.write(str(coordinates.extract(record.seq)))
 			EF999921_CDS.write('\n')
 	output.write('The HCMV genome (EF999921) has ' + str(count) + ' CDS.')
 	output.write('\n')
-
+'''
 def kallisto(file): # run kallisto
 	os.system('time kallisto index -i index.idx EF999921_CDS.fasta')
 	file = open(file).read().splitlines() # loop through all accessions in input file
-	for i in file:
-		os.system('time kallisto quant -i index.idx -o ' + path + '/results_' + i + ' -b 30 -t 2 ' + path + '/' + i + '_1.fastq ' + path + '/' + i + '_2.fastq')
-
+		os.system('time kallisto quant -i index.idx -o ' + path + '/results_' + i + ' -b 30 -t 4 ' + path + '/' + i + '_1.fastq ' + path + '/' + i + '_2.fastq')
+	print('time kallisto index -i index.idx ' + path + '/EF999921_CDS.fasta')
+'''
 def sleuth():
 	os.system('python3 create_table.py') # run code to create sample data
 	os.system('Rscript sleuth.R') # run sleuth
@@ -74,6 +73,7 @@ def sleuth():
     Write to your log file the number of reads in each transcriptome before and after the Bowtie2 mapping '''
 
 def bowtie2_index():
+	#Entrez.email = 'ksenkow@luc.edu'
         handle = Entrez.efetch(db='nucleotide', id='EF999921', rettype='fasta', retmode='text')
         record = list(SeqIO.parse(handle, 'fasta')) # retrieve fasta record for EF999921
         for i in record:
@@ -82,7 +82,7 @@ def bowtie2_index():
         #EF999921_fasta.write('>' + str(record.description)) + EF999921_fasta.write('\n' + str(record.seq)
 
 def bowtie2_map(file): # run bowtie2
-	os.system('bowtie2-build EF999921_fasta.fasta EF999921') 
+	os.system('bowtie2-build EF999921_fasta.fasta EF999921')
 	file = open(file).read().splitlines() # loop through accession IDs in input file
 	for i in file:
 		os.system('bowtie2 --quiet -x EF999921 -1 ' + path + '/' + i + '_1.fastq -2 ' + path + '/' + i + '_2.fastq -S ' + path + '/' + i + '_EF999921_map.sam --al-conc ' + path + '/bt2_' + i + '.fastq')
@@ -199,13 +199,13 @@ if __name__ == '__main__':
 		blast()
 
 	elif choice == 1: # if user uses to use test data, run methods after split_lines()
-		CDS_record()
-		kallisto('input.txt')
-		sleuth()
-		bowtie2_index()
-		bowtie2_map('input.txt')
-		transcriptome_reads('input.txt')
-		spades('input.txt')
+		#CDS_record()
+		#kallisto('input.txt')
+		#sleuth()
+		#bowtie2_index()
+		#bowtie2_map('input.txt')
+		#transcriptome_reads('input.txt')
+		#spades('input.txt')
 		contig_calc()
 		blast_inputs()
 		blast()
