@@ -169,10 +169,10 @@ def blast_inputs():
 def blast():
 	# create db in blast+
 	os.system('makeblastdb -in ' + path + '/blast_db.fasta -out ' + path + '/betaherpesvirinae -title betaherpesvirinae -dbtype nucl')
-	os.system('blastn -query ' + path + '/blast_input.fasta -db betaherpesvirinae -max_target_seqs 10 -out ' + path + '/blast_results.txt -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle"')
+	os.system('blastn -query ' + path + '/blast_input.fasta -db ' + path + '/betaherpesvirinae -max_target_seqs 10 -out ' + path + '/blast_results.txt -outfmt "6 sacc pident length qstart qend sstart send bitscore evalue stitle"')
 	output.write('sacc' + '\t' + 'pident' + '\t' + 'length' + '\t' + 'qstart' + '\t' + 'qend' + '\t' + 'sstart' + '\t' + 'send' + '\t' + 'bitscore' + '\t' + 'eval' + '\t' + 'stitle')
 	output.write('\n') # write desired headers to output file
-	read_blast_results = open('blast_results.txt').read().splitlines() # read output of blast+ output file and write to miniProject log
+	read_blast_results = open(path + '/blast_results.txt').read().splitlines() # read output of blast+ output file and write to miniProject log
 	for i in read_blast_results:
 		output.write(str(i))
 		output.write('\n')
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 		fastq('input.txt')
 		split_lines('input.txt')
 		CDS_record()
-		kallisto('input.txt')
+		#kallisto('input.txt')
 		sleuth()
 		bowtie2_index()
 		bowtie2_map('input.txt')
