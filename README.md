@@ -22,6 +22,7 @@ If running on test data:
 
 If downloading data:
 > rm SRR*
+> 
 > python3 wrapper -d 0
 
 ## Assignment Details:
