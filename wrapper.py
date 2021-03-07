@@ -202,7 +202,7 @@ if __name__ == '__main__':
 		blast()
 
 	elif choice == 1: # if user uses to use test data, run methods after split_lines()
-		#CDS_record()
+		CDS_record()
 		#kallisto('input.txt')
 		sleuth()
 		bowtie2_index()

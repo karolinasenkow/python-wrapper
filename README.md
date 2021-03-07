@@ -1,7 +1,7 @@
 # Python Wrapper
 
 ## Software and Tools
-Linux/UNIX
+* Linux/UNIX
 * [Python3](https://www.python.org/downloads/)
 * [BioPython](https://biopython.org/)
 * [R](https://www.r-project.org/)
@@ -15,15 +15,21 @@ To run wrapper.py, clone this repository:
 	https://github.com/karolinasenkow/python-wrapper.git
 
 Navigate to folder containing repo: 
-> cd python-wrapper
+'''
+cd python-wrapper
+'''
 
 If running on test data:
-> python3 wrapper.py -d 1
+'''
+python3 wrapper.py -d 1
+'''
 
 If downloading data:
-> rm SRR*
-> 
-> python3 wrapper -d 0
+'''
+rm SRR*
+ 
+python3 wrapper -d 0
+'''
 
 ## Assignment Details:
 
