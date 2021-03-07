@@ -11,17 +11,17 @@
 * [blast+](https://www.ncbi.nlm.nih.gov/books/NBK279690/)
 
 ## Installation
-To run wrapper.py, clone this repository:
+#### To run wrapper.py, clone this repository:
 	https://github.com/karolinasenkow/python-wrapper.git
 
-Navigate to folder containing repo: 
-	cd python-wrappe'
+#### Navigate to folder containing repo: 
+	cd python-wrapper
 
-If running on test data:
+#### If running on test data:
 	python3 wrapper.py -d 1
 
 
-If downloading data:
+#### If downloading data:
 	rm SRR*
 	python3 wrapper -d 0
 
