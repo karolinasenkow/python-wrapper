@@ -23,7 +23,7 @@
 
 #### If downloading data:
 	rm SRR*
-	python3 wrapper -d 0
+	python3 wrapper.py -d 0
 
 ## Assignment Details:
 
